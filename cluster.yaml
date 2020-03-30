@@ -1,0 +1,17 @@
+__default__:
+    nCPUs     : 1
+    queue     : "normal"
+    memory    : 3000
+    resources : "\"rusage[mem=1000] span[hosts=1]\""
+    name      : "JOBNAME.{rule}.{wildcards}"
+    output    : "logs/cluster_{rule}.{wildcards}.o"
+    error     : "logs/cluster_{rule}.{wildcards}.e"
+
+supernova:
+    nCPUs     : 10
+    queue     : "bigmem"
+    memory    : 600000
+    resources : "\"rusage[mem=600000] span[hosts=1]\""
+    output    : "logs/cluster_{rule}.{wildcards}.o"
+    error     : "logs/cluster_{rule}.{wildcards}.e"
+

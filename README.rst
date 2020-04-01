@@ -4,6 +4,12 @@ Snakemake pipeline for de novo genome assembly using a combination of long and s
 
 .. contents:: **Table of Contents**
 
+Input data
+========================================
+
+(1) 10x Illimina: (a) set sample name in config.yaml (e.g. 'Her2'); \
+                  (b) move 10x Illumina data in 10x/{sample} (e.g. 10x/Her2) directory
+
 Linked reads Illumina (10x)
 ========================================
 

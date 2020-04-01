@@ -12,13 +12,46 @@ with open('cluster.yaml', mode='r') as f:
     cluster_config = yaml.load(f)
 
 #################
-## data, sample ids
+## datai ids, sample ids
 #################
  
-10xSAMPLE = config["10x_sample"]
+TENXSAMPLE = config["10x_sample"]
 
-rule supernova:
+#################
+## rules
+#################
+
+rule all:
+	input:
+		expand("out_supernova_{sample}/outs/report.txt", sample = TENXSAMPLE),
+		expand("out_lrbasic_{sample}/outs/barcoded.fastq.gz", sample = TENXSAMPLE)
+
+#rule create_dir_supernova:
+#    	output: 
+#    		directory(expand("10x/{sample}", sample = TENXSAMPLE))
+#    	shell:
+#        	"mkdir -p {output}"
+
+rule supernova_assembly:
+	input:
+		dir="10x/{sample}",
+	output: 
+		"out_supernova_{sample}/outs/report.txt"
 	log:
-		"logs/supernova/{10xsample}.log
+		"logs/supernova/{sample}.log"
+	singularity:
+        	"docker://nfcore/supernova"
 	shell: 
-		"supernova run --id=10x_supernova --fastqs=10x/raw_data/Her2 --sample=Her2 --localmem 600 --localcores 20 --maxreads='all') 2> {log}"
+		"(supernova run --id=out_supernova_{wildcards.sample} --fastqs={input.dir} --sample={wildcards.sample} --localmem 600 --localcores 10 --maxreads='all') 2> {log}"
+
+rule longranger_basic:
+	input:
+		dir="10x/{sample}"
+	output:
+		"out_lrbasic_{sample}/outs/barcoded.fastq.gz"
+	log:
+		"logs/longranger/{sample}.log"
+	singularity:
+		"docker://olavurmortensen/longranger"
+	shell:
+		"longranger basic --id=out_lrbasic_{wildcards.sample} --fastqs={input.dir} --sample={wildcards.sample} --localcores=10 --localmem=50 --maxjobs=20"

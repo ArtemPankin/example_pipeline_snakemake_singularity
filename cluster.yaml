@@ -7,7 +7,7 @@ __default__:
     output    : "logs/cluster_{rule}.{wildcards}.o"
     error     : "logs/cluster_{rule}.{wildcards}.e"
 
-supernova:
+supernova_assembly:
     nCPUs     : 10
     queue     : "bigmem"
     memory    : 600000
@@ -15,3 +15,10 @@ supernova:
     output    : "logs/cluster_{rule}.{wildcards}.o"
     error     : "logs/cluster_{rule}.{wildcards}.e"
 
+longranger_basic:
+    nCPUs     : 10
+    queue     : "multicore20"
+    memory    : 50000
+    resources : "\"rusage[mem=50000] span[hosts=1]\""
+    output    : "logs/cluster_{rule}.{wildcards}.o"
+    error     : "logs/cluster_{rule}.{wildcards}.e"

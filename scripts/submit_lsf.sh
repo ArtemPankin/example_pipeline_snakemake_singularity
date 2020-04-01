@@ -9,6 +9,8 @@ CLUSTER_CMD=("bsub -q {cluster.queue} -n {cluster.nCPUs} -R {cluster.resources} 
 #  -J "$JOB_NAME" \
   snakemake --cluster-config cluster.yaml \
     --rerun-incomplete \
+    --use-conda \
+    --use-singularity \
     --latency-wait 2 \
     --jobs 10 \
     --cluster "${CLUSTER_CMD}"

@@ -1,0 +1,33 @@
+rule jellyfish_kmer:
+	input:
+		"out_lrbasic_{sample}/outs/barcoded.fastq.gz"
+	output:
+		"out_jellyfish_{sample}/kmer_counts_jellyfish"
+	log:
+		"logs/jellyfish/{sample}_kmer.log"
+	threads: 4
+	shell:
+		"(zcat {input} | "
+		"jellyfish count /dev/fd/0 -C -o {output} -m 21 -t {threads} -s 5G) 2> {log}"
+
+rule jellyfish_hist:
+	input:
+		"out_jellyfish_{sample}/kmer_counts_jellyfish"
+	output:
+		"out_jellyfish_{sample}/jellyfish.hist"
+	log:
+		"logs/jellyfish/{sample}_hist.log"
+	shell:
+		"(jellyfish histo -h 3000000 -o {output} {input}) 2> {log}"
+
+rule findgse:
+	input:
+		"out_jellyfish_{sample}/jellyfish.hist"
+	params:
+		outdir = "out_findgse_{sample}"
+	output:
+		"out_findgse_{sample}/v1.94.est.jellyfish.hist.genome.size.estimated.k21to21.fitted.txt"
+	log:
+		"logs/findgse/{sample}.log"
+	script:
+		"scripts/findgse.R"

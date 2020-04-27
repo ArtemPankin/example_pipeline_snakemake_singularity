@@ -15,4 +15,4 @@ dependencies:
   - jellyfish =2.2.10
   - r =3.6.0
   - r-pryr =0.1.4
-    #- r-pracma =1.8.8
+  - getorganelle =1.6.4

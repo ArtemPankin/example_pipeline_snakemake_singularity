@@ -1,0 +1,27 @@
+rule trim_barcode_tenx:
+    output:
+          out1="out_trim_barcode_tenx/{sample}_1_trimmed.fq.gz",
+          out2="out_trim_barcode_tenx/{sample}_2_trimmed.fq.gz"
+    params:
+          dir="10x/{sample}"
+    log:
+          "logs/trim_barcode_tenx/{sample}.log"
+    shell:
+          "(zcat {params.dir}/{wildcards.sample}_S*_L001_R1_001.fastq.gz | "
+          "paste - - - - | "
+          """awk \"BEGIN{{FS=OFS=\\"\\t\\"}}{{print \$1,substr(\$2,24),\$3,substr(\$4,24)}}\" | """
+          "tr '\\t' '\\n' | "
+          "gzip -7 > {output.out1} && "
+          "zcat {params.dir}/{wildcards.sample}_S*_L001_R2_001.fastq.gz > {output.out2}) 2> {log}"
+ 
+rule getorganelle_plast:
+    input:
+          fq1=rules.trim_barcode_tenx.output.out1,
+          fq2=rules.trim_barcode_tenx.output.out2
+    output:
+          directory("out_getorganelle_plast_{sample}")
+    threads: 4
+    log:
+          "logs/getorganelle_plast/{sample}.log"
+    shell:
+          "get_organelle_from_reads.py -1 {input.fq1} -2 {input.fq2} -o {output} -R 15 -k 21,45,65,85,105 -F embplant_pt -t {threads} -P 6E5"            

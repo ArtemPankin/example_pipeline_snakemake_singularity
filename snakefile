@@ -21,22 +21,21 @@ TENXSAMPLE = config["10x_sample"]
 ## rules
 #################
 
+include: "modules/findgse.module"
+include: "modules/getorganelle_plast.module"
+
+
 rule all:
 	input:
-		expand("out_supernova_{sample}/outs/report.txt", sample = TENXSAMPLE), ## supernova - de novo assembly module
-		expand("out_findgse_{sample}/v1.94.est.jellyfish.hist.genome.size.estimated.k21to21.fitted.txt", sample = TENXSAMPLE)
-
-#rule create_dir_supernova:
-#    	output: 
-#    		directory(expand("10x/{sample}", sample = TENXSAMPLE))
-#    	shell:
-#        	"mkdir -p {output}"
+		expand("out_supernova_{sample}/outs", sample = TENXSAMPLE), ## supernova - de novo assembly module
+		expand("out_findgse_{sample}/v1.94.est.jellyfish.hist.genome.size.estimated.k21to21.fitted.txt", sample = TENXSAMPLE),
+		expand("out_getorganelle_plast_{sample}", sample = TENXSAMPLE)
 
 rule supernova_assembly:
 	input:
 		dir="10x/{sample}",
 	output: 
-		"out_supernova_{sample}/outs/report.txt"
+		directory("out_supernova_{sample}/outs")
 	log:
 		"logs/supernova/{sample}.log"
 	singularity:
@@ -58,36 +57,3 @@ rule longranger_basic:
 	shell:
 		"(longranger basic --id=out_lrbasic_{wildcards.sample} --fastqs={input.dir} --sample={wildcards.sample} --localcores={threads} --localmem=50 --maxjobs=20) 2> {log}"
 
-rule jellyfish_kmer:
-	input:
-		"out_lrbasic_{sample}/outs/barcoded.fastq.gz"
-	output:
-		"out_jellyfish_{sample}/kmer_counts_jellyfish"
-	log:
-		"logs/jellyfish/{sample}_kmer.log"
-	threads: 4
-	shell:
-		"(zcat {input} | "
-		"jellyfish count /dev/fd/0 -C -o {output} -m 21 -t {threads} -s 5G) 2> {log}"
-
-rule jellyfish_hist:
-	input:
-		"out_jellyfish_{sample}/kmer_counts_jellyfish"
-	output:
-		"out_jellyfish_{sample}/jellyfish.hist"
-	log:
-		"logs/jellyfish/{sample}_hist.log"
-	shell:
-		"(jellyfish histo -h 3000000 -o {output} {input}) 2> {log}"
-
-rule findgse:
-	input:
-		"out_jellyfish_{sample}/jellyfish.hist"
-	params:
-		outdir = "out_findgse_{sample}"
-	output:
-		"out_findgse_{sample}/v1.94.est.jellyfish.hist.genome.size.estimated.k21to21.fitted.txt"
-	log:
-		"logs/findgse/{sample}.log"
-	script:
-		"scripts/findgse.R"

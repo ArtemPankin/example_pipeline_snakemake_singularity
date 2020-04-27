@@ -17,5 +17,8 @@ Linked reads Illumina (10x)
 (2) Performing longranger basic pipeline - extracts and trims long-molecule barcodes \
 (3) k-mer based genome metrics (fastq output of longrange basic) \
 
+Oxford Nanopore reads (ONT)
+========================================
+
 .. image:: img/dag.png
    :width: 600

@@ -30,3 +30,11 @@ jellyfish_kmer:
     resources : "\"rusage[mem=100000] span[hosts=1]\""
     output    : "logs/cluster_{rule}.{wildcards}.o"
     error     : "logs/cluster_{rule}.{wildcards}.e"
+
+shasta:
+    nCPUs     : 10
+    queue     : "bigmem"
+    memory    : 200000
+    resources : "\"rusage[mem=200000] span[hosts=1]\""
+    output    : "logs/cluster_{rule}.{wildcards}.o"
+    error     : "logs/cluster_{rule}.{wildcards}.e"

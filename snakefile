@@ -15,7 +15,8 @@ with open('cluster.yaml', mode='r') as f:
 ## datai ids, sample ids
 #################
  
-TENXSAMPLE = config["10x_sample"]
+TENXSAMPLE = config["sample"]
+
 
 #################
 ## rules
@@ -23,14 +24,14 @@ TENXSAMPLE = config["10x_sample"]
 
 include: "modules/findgse.module"
 include: "modules/getorganelle_plast.module"
-
+#include: "modules/"
 
 rule all:
 	input:
 		expand("out_supernova_{sample}/outs", sample = TENXSAMPLE), ## supernova - de novo assembly module
-		expand("out_findgse_{sample}/v1.94.est.jellyfish.hist.genome.size.estimated.k21to21.fitted.txt", sample = TENXSAMPLE),
-		expand("out_getorganelle_plast_{sample}", sample = TENXSAMPLE)
-
+		expand("out_findgse_{sample}/v1.94.est.jellyfish.hist.genome.size.estimated.k21to21.fitted.txt", sample = TENXSAMPLE), ## findgse - genome properties based on k-mer spectrum
+		expand("out_getorganelle_plast_{sample}", sample = TENXSAMPLE), ## chloroplast genome assembler 
+		expand("out_shasta_{sample}/Assembly.fasta", sample = TENXSAMPLE) ## nanopore assembler - Shasta
 rule supernova_assembly:
 	input:
 		dir="10x/{sample}",
@@ -57,3 +58,18 @@ rule longranger_basic:
 	shell:
 		"(longranger basic --id=out_lrbasic_{wildcards.sample} --fastqs={input.dir} --sample={wildcards.sample} --localcores={threads} --localmem=50 --maxjobs=20) 2> {log}"
 
+rule shasta:
+	input:
+		file="ont_data/{sample}.fastq.gz"
+	output:
+		"out_shasta_{sample}/Assembly.fasta"
+	params:
+		outdir="out_shasta_{sample}"
+	log:
+		"logs/shasta/{sample}.log"
+	singularity:
+		"docker://kishwars/shasta"
+	threads: 10
+	shell:
+		"(shasta --input {input.file} --memoryMode anonymous --memoryBacking 4K --Assembly.consensusCaller Bayesian:guppy-3.0.5-a --assemblyDirectory {params.outdir} --threads {threads}) 2> {log}"
+		
